@@ -36,6 +36,8 @@ If you've done everything correctly, you have now access to the control panel.
 1. Open task manager.
 2. Search for "python" and stop all the processes that comes up.
 
+A quicker and easier way will probably come in future updates, but I'll keep it like this for now.
+
 ### Logging
 
 To check the **logs** of all the actions, simple go to C:/PCCtrl, where there will be a file named **remote_actions.log**. If you don't see it, don't worry, this just means that you haven't performed any actions yet.
