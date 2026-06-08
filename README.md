@@ -42,4 +42,8 @@ A quicker and easier way will probably come in future updates, but I'll keep it 
 
 To check the **logs** of all the actions, simple go to C:/PCCtrl, where there will be a file named **remote_actions.log**. If you don't see it, don't worry, this just means that you haven't performed any actions yet.
 
+### Uninstalling
+
+To uninstall PCCtrl, go to C:/PCCtrl where you will find a file named **unins000.exe**. Simply run that first, shutdown the server following the steps above, and then delete the PCCtrl folder from you C: drive.
+
 If something doesn't work, feel free to message me on discord: **chunkberries**
