@@ -2,4 +2,31 @@
 Easy To Use PC Control, with a local server making it possible to control the pc directly from your phone.
 
 ## Instructions:
-> 1. Download and run the 
+1. Download the [installer](https://github.com/chunkberries/PC-Ctrl/releases/download/Installer/PCCtrlSetup.exe).
+2. When running the installer you will be prompted to select the users path. To change the user you wanna control, click browse.
+<img width="602" height="465" alt="ctrltut2" src="https://github.com/user-attachments/assets/ffca8d37-ad3b-4cd5-9b32-84bcad93de4c" />
+3. To get all the names of all the users on the pc, open up a **Command Prompt** and run:
+  ```net user```
+
+4. When you've found the user you wanna control, see the image where you need to put the user's name.
+<img width="423" height="439" alt="ctrltut1" src="https://github.com/user-attachments/assets/1237c78e-fdfd-438f-86e3-502aabe88562" />
+5. After that, click **OK** and hit **Next** then **Install**.
+6. Ater the installation you have the option to run the PCCtrl server. This just starts the control making you able to visit the control panel, note that this starts the control for the logged in user, not the user you selected. This is highly recommended.
+
+### Now you've successfully installed the server onto the pc! This next step will guide you how to set a pin open the control panel.
+
+If you selected the option "Start PCCtrl server" during installation, you can proceed with the steps below, if not, just log in with the user you chose during installation to start the server, note that it might take a minute for the program to start.
+
+**Setting a pin:**
+1. Go to **C:/PCCtrl**. In here you should see the file called **remote_server.py**. Right click  and select **Open with: Notepad**. At the top you should see the variable **PIN**, change that to your liking. Make sure your pins starts and ends with double-quotes (" "), otherwise the code will error.
+2. Hit **CTRL + S** to save.
+
+### Now you've set a pin! Let's move onto actually opening the control panel.
+
+1. First of all you have to get the PC's ip adress. To do that, open a **Command Prompt** and run:
+```ipconfig```
+2. Look for "IPv4 Adress". Thats the ip.
+3. Once you've got the ip, go onto your phone and type in **<the pc's ip>:5050** (the default port is 5050, change it if you've changed it through the python code)
+
+If you've done everything correctly, you have now access to the control panel. 
+If something does'nt work, feel free to message me on discord: **chunkberries**
