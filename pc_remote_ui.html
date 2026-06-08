@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PC Remote</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --border: #1e1e2e;
+    --accent: #00e5ff;
+    --accent2: #ff3d71;
+    --accent3: #a78bfa;
+    --text: #e2e8f0;
+    --muted: #4a5568;
+    --green: #10b981;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 40px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orb */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(0,229,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .header .label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0.8;
+  }
+
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .header h1 span {
+    color: var(--accent);
+  }
+
+  /* ── Status pill ── */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.3s;
+  }
+
+  .status-dot.online { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse-dot 2s infinite; }
+  .status-dot.offline { background: var(--red); }
+  .status-dot.checking { background: var(--yellow); animation: blink 0.6s infinite; }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .status-text {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .user-display {
+    text-align: center;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+    opacity: 0;
+    height: 14px;
+    transition: opacity 0.25s;
+  }
+
+  .user-display.show { opacity: 1; }
+
+  /* ── PIN Section ── */
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-left: 2px;
+  }
+
+  .pin-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+    align-items: center;
+  }
+
+  .pin-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    letter-spacing: 8px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-text-security: disc;
+  }
+
+  .pin-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(0,229,255,0.1);
+  }
+
+  .check-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .check-btn:active { transform: scale(0.95); background: var(--border); }
+
+  /* ── Action Cards ── */
+  .actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .action-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .action-card.message {
+    grid-column: span 2;
+    flex-direction: row;
+    align-items: center;
+    padding: 16px 20px;
+  }
+
+  .action-card.message .card-text-wrapper { flex: 1; }
+
+  .action-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: inherit;
+  }
+
+  .action-card.logout::before  { background: linear-gradient(135deg, rgba(167,139,250,0.08), transparent); }
+  .action-card.lock::before    { background: linear-gradient(135deg, rgba(0,229,255,0.08), transparent); }
+  .action-card.shutdown::before { background: linear-gradient(135deg, rgba(239,68,68,0.08), transparent); }
+  .action-card.restart::before  { background: linear-gradient(135deg, rgba(245,158,11,0.08), transparent); }
+  .action-card.message::before  { background: linear-gradient(135deg, rgba(16,185,129,0.08), transparent); }
+  .action-card.disable::before  { background: linear-gradient(135deg, rgba(239,68,68,0.08), transparent); }
+  .action-card.enable::before   { background: linear-gradient(135deg, rgba(16,185,129,0.08), transparent); }
+
+  .action-card:active { transform: scale(0.97); }
+  .action-card:active::before { opacity: 1; }
+
+  .action-card.disabled {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .card-icon {
+    font-size: 26px;
+    line-height: 1;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .card-desc {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.4;
+    letter-spacing: 0.3px;
+  }
+
+  .card-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .logout  .card-badge { background: var(--accent3); }
+  .lock    .card-badge { background: var(--accent); }
+  .shutdown .card-badge { background: var(--red); }
+  .restart .card-badge { background: var(--yellow); }
+  .message .card-badge { background: var(--green); }
+  .disable .card-badge { background: var(--red); }
+  .enable .card-badge { background: var(--green); }
+
+  /* ── Toast notification ── */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 13px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 100;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    white-space: nowrap;
+    max-width: calc(100vw - 40px);
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: rgba(16,185,129,0.4); }
+  .toast.error   { border-color: rgba(239,68,68,0.4); }
+
+  .toast-icon { font-size: 16px; }
+
+  /* ── Confirm overlay ── */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(6px);
+    z-index: 50;
+    display: flex;
+    align-items: flex-end;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+
+  .overlay.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .confirm-sheet {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    transform: translateY(30px);
+    transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+  }
+
+  .overlay.show .confirm-sheet { transform: translateY(0); }
+
+  .confirm-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .confirm-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .extra-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .input-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .custom-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    padding: 12px 14px;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+
+  .custom-input:focus { border-color: var(--accent); }
+  .custom-input option { background: var(--bg); color: var(--text); }
+  textarea.custom-input { resize: vertical; }
+
+  .confirm-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .btn {
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  .btn-cancel {
+    background: var(--border);
+    color: var(--muted);
+  }
+
+  .btn-confirm {
+    background: var(--accent2);
+    color: white;
+  }
+
+  .btn-confirm.warn { background: var(--red); }
+  .btn-confirm.safe { background: var(--accent); color: var(--bg); }
+  .btn-confirm.caution { background: var(--yellow); color: var(--bg); }
+  .btn-confirm.msg { background: var(--green); color: var(--bg); }
+
+  /* ── Divider ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Server config ── */
+  .server-config {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .server-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .server-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    padding: 0;
+  }
+
+  .server-input::placeholder { color: var(--muted); }
+
+  .server-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  /* Loading spinner inside button */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinning { animation: spin 0.8s linear infinite; display: inline-block; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="label">// remote access</div>
+    <h1>PC <span>CTRL</span></h1>
+  </div>
+
+  <!-- Status -->
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <span class="status-text" id="statusText">NOT CHECKED</span>
+  </div>
+  <div class="user-display" id="userDisplay">
+    USER: <span id="userName">UNKNOWN</span>
+  </div>
+
+  <!-- PIN -->
+  <div class="section-label">PIN</div>
+  <div class="pin-wrapper">
+    <input
+      class="pin-input"
+      id="pinInput"
+      type="tel"
+      inputmode="numeric"
+      maxlength="8"
+      placeholder="••••"
+      autocomplete="off"
+    >
+    <button class="check-btn" onclick="pingServer()" title="Check connection">
+      <span id="pingIcon">⚡</span>
+    </button>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="divider">actions</div>
+
+  <div class="actions-grid" id="actionsGrid">
+
+    <div class="action-card lock disabled" onclick="confirm_action('lock')">
+      <div class="card-badge"></div>
+      <div class="card-icon">🔒</div>
+      <div class="card-title">Lock</div>
+      <div class="card-desc">Lock screen, keep session active</div>
+    </div>
+
+    <div class="action-card logout disabled" onclick="confirm_action('logout')">
+      <div class="card-badge"></div>
+      <div class="card-icon">🚪</div>
+      <div class="card-title">Log Out</div>
+      <div class="card-desc">Sign out current user</div>
+    </div>
+
+    <div class="action-card restart disabled" onclick="confirm_action('restart')">
+      <div class="card-badge"></div>
+      <div class="card-icon">🔄</div>
+      <div class="card-title">Restart</div>
+      <div class="card-desc">Reboot the PC</div>
+    </div>
+
+    <div class="action-card shutdown disabled" onclick="confirm_action('shutdown')">
+      <div class="card-badge"></div>
+      <div class="card-icon">⏻</div>
+      <div class="card-title">Shut Down</div>
+      <div class="card-desc">Power off the PC</div>
+    </div>
+
+    <div class="action-card message disabled" onclick="confirm_action('message')">
+      <div class="card-badge"></div>
+      <div class="card-icon">💬</div>
+      <div class="card-text-wrapper">
+        <div class="card-title">Send Message</div>
+        <div class="card-desc">Open a popup message on the PC</div>
+      </div>
+    </div>
+
+
+    <div class="action-card disable disabled" onclick="confirm_action('disable')">
+      <div class="card-badge"></div>
+      <div class="card-icon">🚫</div>
+      <div class="card-title">Disable Access</div>
+      <div class="card-desc">Log out non-admin users for a while</div>
+    </div>
+
+    <div class="action-card enable disabled" onclick="confirm_action('enable')">
+      <div class="card-badge"></div>
+      <div class="card-icon">✓</div>
+      <div class="card-title">Re-enable</div>
+      <div class="card-desc">Allow non-admin users again</div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Confirm Sheet -->
+<div class="overlay" id="overlay" onclick="closeOverlay(event)">
+  <div class="confirm-sheet">
+    <div class="confirm-title" id="confirmTitle">Are you sure?</div>
+    <div class="confirm-desc" id="confirmDesc">This action will be sent to your PC.</div>
+    <div class="extra-inputs">
+      <div class="input-wrapper" id="delayWrapper">
+        <label class="input-label" id="delayLabel" for="delayInput">Delay</label>
+        <select id="delayInput" class="custom-input">
+          <option value="0">Now</option>
+          <option value="1">In 1 minute</option>
+          <option value="5">In 5 minutes</option>
+          <option value="15">In 15 minutes</option>
+          <option value="30">In 30 minutes</option>
+          <option value="60">In 1 hour</option>
+          <option value="120">In 2 hours</option>
+          <option value="240">In 4 hours</option>
+          <option value="480">In 8 hours</option>
+        </select>
+      </div>
+      <div class="input-wrapper" id="messageWrapper" style="display: none;">
+        <label class="input-label" for="messageInput">Message</label>
+        <textarea id="messageInput" class="custom-input" rows="3" placeholder="Type message..."></textarea>
+      </div>
+    </div>
+    <div class="confirm-btns">
+      <button class="btn btn-cancel" onclick="closeOverlay()">Cancel</button>
+      <button class="btn btn-confirm" id="confirmBtn" onclick="executeAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✓</span>
+  <span id="toastMsg">Done</span>
+</div>
+
+<script>
+  const ACTIONS = {
+    lock:     { label: 'Lock Screen',  desc: 'The screen will lock. Your session stays active.',             btnClass: 'safe',    btnText: 'Lock It' },
+    logout:   { label: 'Log Out',      desc: 'The current user will be logged out. Unsaved work may be lost.', btnClass: '',       btnText: 'Log Out' },
+    restart:  { label: 'Restart PC',   desc: 'The PC will restart. Save your work first.',                    btnClass: 'caution', btnText: 'Restart' },
+    shutdown: { label: 'Shut Down',    desc: 'The PC will power off. This cannot be undone.',                  btnClass: 'warn',    btnText: 'Shut Down' },
+    message:  { label: 'Send Message', desc: 'A VBScript message window will open on the PC.',                 btnClass: 'msg',     btnText: 'Send' },
+    disable:  { label: 'Disable Access', desc: 'Only non-admin users will be logged out while this timer is active.', btnClass: 'warn',    btnText: 'Disable' },
+    enable:   { label: 'Re-enable',      desc: 'Clear the disable timer and allow non-admin users again.',           btnClass: 'msg',     btnText: 'Enable' },
+  };
+
+  let pendingAction = null;
+
+  function formatDuration(seconds) {
+    const minutes = Math.max(1, Math.ceil(seconds / 60));
+    if (minutes === 60) return '1H';
+    if (minutes > 60 && minutes % 60 === 0) return (minutes / 60) + 'H';
+    return minutes + 'M';
+  }
+
+  // ── Auto-detect server from wherever this page was loaded ──────────────────
+  function getBaseUrl() {
+    return window.location.origin;
+  }
+
+  // ── Ping ────────────────────────────────────────────────────────────────────
+  async function pingServer() {
+    const base = getBaseUrl();
+    const pin  = document.getElementById('pinInput').value;
+
+
+    setStatus('checking', 'CHECKING...');
+    document.getElementById('userDisplay').classList.remove('show');
+    document.getElementById('pingIcon').innerHTML = '<span class="spinning">↻</span>';
+
+    try {
+      const res = await fetch(base + '/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin, action: 'ping' }),
+        signal: AbortSignal.timeout(5000),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setStatus('online', 'ONLINE - ' + data.msg.toUpperCase());
+        setCardsEnabled(true);
+        showToast('Connected to PC', true);
+        if (data.user) {
+          const role = data.admin ? 'ADMIN' : 'NON-ADMIN';
+          let userLine = data.user.toUpperCase() + ' / ' + role;
+          if (data.disabled) {
+            userLine += ' / DISABLED ' + formatDuration(data.disableRemaining || 0);
+          }
+          document.getElementById('userName').textContent = userLine;
+          document.getElementById('userDisplay').classList.add('show');
+        }
+      } else {
+        setStatus('offline', 'WRONG PIN');
+        setCardsEnabled(false);
+        document.getElementById('userDisplay').classList.remove('show');
+        showToast('Wrong PIN - try again', false);
+      }
+    } catch {
+      setStatus('offline', 'UNREACHABLE');
+      setCardsEnabled(false);
+      document.getElementById('userDisplay').classList.remove('show');
+      showToast('Cannot reach PC - check IP/network', false);
+    }
+    document.getElementById('pingIcon').textContent = '⚡';
+  }
+
+  // ---- Status helpers ──────────────────────────────────────────────────────────
+  function setStatus(state, text) {
+    const dot = document.getElementById('statusDot');
+    dot.className = 'status-dot ' + state;
+    document.getElementById('statusText').textContent = text;
+  }
+
+  function setCardsEnabled(enabled) {
+    document.querySelectorAll('.action-card').forEach(c => {
+      c.classList.toggle('disabled', !enabled);
+    });
+  }
+
+  // ── Confirm flow ────────────────────────────────────────────────────────────
+  function confirm_action(action) {
+    pendingAction = action;
+    const cfg = ACTIONS[action];
+    document.getElementById('confirmTitle').textContent = cfg.label;
+    document.getElementById('confirmDesc').textContent  = cfg.desc;
+    document.getElementById('delayInput').value = action === 'disable' ? '60' : '0';
+    document.getElementById('delayWrapper').style.display = action === 'enable' ? 'none' : 'flex';
+    document.getElementById('delayLabel').textContent = action === 'disable' ? 'Disable For' : 'Delay';
+    document.getElementById('messageInput').value = '';
+    document.getElementById('messageWrapper').style.display = action === 'message' ? 'flex' : 'none';
+    const btn = document.getElementById('confirmBtn');
+    btn.textContent  = cfg.btnText;
+    btn.className    = 'btn btn-confirm ' + cfg.btnClass;
+    document.getElementById('overlay').classList.add('show');
+    if (action === 'message') {
+      setTimeout(() => document.getElementById('messageInput').focus(), 150);
+    }
+  }
+
+  function closeOverlay(e) {
+    if (e && e.target !== document.getElementById('overlay')) return;
+    document.getElementById('overlay').classList.remove('show');
+  }
+
+  async function executeAction() {
+    const selectedMinutes = parseInt(document.getElementById('delayInput').value, 10) || 0;
+    const message = document.getElementById('messageInput').value.trim();
+
+    if (pendingAction === 'message' && !message) {
+      showToast('Type a message first', false);
+      document.getElementById('messageInput').focus();
+      return;
+    }
+
+    document.getElementById('overlay').classList.remove('show');
+    const base = getBaseUrl();
+    const pin  = document.getElementById('pinInput').value;
+    if (!base || !pendingAction) return;
+
+    const payload = { pin, action: pendingAction };
+    if (pendingAction === 'disable') {
+      payload.duration = selectedMinutes || 60;
+    } else if (pendingAction !== 'enable') {
+      payload.delay = selectedMinutes;
+    }
+    if (pendingAction === 'message') {
+      payload.message = message;
+    }
+
+    try {
+      const res = await fetch(base + '/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(6000),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast(data.msg, true);
+        if ((pendingAction === 'shutdown' || pendingAction === 'restart') && selectedMinutes === 0) {
+          setStatus('offline', 'PC GOING DOWN...');
+          setCardsEnabled(false);
+          document.getElementById('userDisplay').classList.remove('show');
+        }
+      } else {
+        showToast(data.msg || 'Error', false);
+      }
+    } catch {
+      showToast('Lost connection to PC', false);
+      setStatus('offline', 'LOST CONNECTION');
+      setCardsEnabled(false);
+      document.getElementById('userDisplay').classList.remove('show');
+    }
+    pendingAction = null;
+  }
+
+  // ---- Toast ───────────────────────────────────────────────────────────────────
+  let toastTimer;
+  function showToast(msg, ok) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    document.getElementById('toastIcon').textContent = ok ? '✓' : '✕';
+    t.className = 'toast show ' + (ok ? 'success' : 'error');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── Auto-ping on enter in PIN field ─────────────────────────────────────────
+  document.getElementById('pinInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') pingServer();
+  });
+</script>
+</body>
+</html>
