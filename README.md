@@ -4,17 +4,16 @@ Easy To Use PC Control, with a local server making it possible to control the pc
 ## Instructions:
 1. Download the [installer](https://github.com/chunkberries/PC-Ctrl/releases/download/Installer/PCCtrlSetup.exe).
 2. When running the installer you will be prompted to select the users path. To change the user you wanna control, click browse.
-3. 
 <img width="602" height="465" alt="ctrltut2" src="https://github.com/user-attachments/assets/ffca8d37-ad3b-4cd5-9b32-84bcad93de4c" />
 
-4. To get all the names of all the users on the pc, open up a **Command Prompt** and run:
+3. To get all the names of all the users on the pc, open up a **Command Prompt** and run:
   ```net user```
 
-5. When you've found the user you wanna control, see the image where you need to put the user's name.
+4. When you've found the user you wanna control, see the image where you need to put the user's name.
 <img width="423" height="439" alt="ctrltut1" src="https://github.com/user-attachments/assets/1237c78e-fdfd-438f-86e3-502aabe88562" />
 
-6. After that, click **OK** and hit **Next** then **Install**.
-7. Ater the installation you have the option to run the PCCtrl server. This just starts the control making you able to visit the control panel, note that this starts the control for the logged in user, not the user you selected. This is highly recommended.
+5. After that, click **OK** and hit **Next** then **Install**.
+6. Ater the installation you have the option to run the PCCtrl server. This just starts the control making you able to visit the control panel, note that this starts the control for the logged in user, not the user you selected. This is highly recommended.
 
 ### Now you've successfully installed the server onto the pc! This next step will guide you how to set a pin open the control panel.
 
