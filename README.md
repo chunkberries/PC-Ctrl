@@ -31,4 +31,13 @@ If you selected the option "Start PCCtrl server" during installation, you can pr
 3. Once you've got the ip, go onto your phone and type in **<the pc's ip>:5050** (the default port is 5050, change it if you've changed it through the python code)
 
 If you've done everything correctly, you have now access to the control panel. 
+
+### Shutting down the server
+1. Open task manager.
+2. Search for "python" and stop all the processes that comes up.
+
+### Logging
+
+To check the **logs** of all the actions, simple go to C:/PCCtrl, where there will be a file named **remote_actions.log**. If you don't see it, don't worry, this just means that you haven't performed any actions yet.
+
 If something doesn't work, feel free to message me on discord: **chunkberries**
