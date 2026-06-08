@@ -249,7 +249,7 @@ def handle_action(data):
             safe_message = message.replace('"', '""')
             safe_message = safe_message.replace("\r\n", "\n").replace("\r", "\n")
             safe_message = safe_message.replace("\n", '" & vbCrLf & "')
-            vbs = f'MsgBox "{safe_message}", vbInformation, "Meddelande"'
+            vbs = f'MsgBox "{safe_message}", vbInformation, "Message from parent"'
             try:
                 with open(vbs_path, "w", encoding="mbcs", errors="replace", newline="\r\n") as f:
                     f.write(vbs)
@@ -259,10 +259,10 @@ def handle_action(data):
             run_later(delay_seconds, f'wscript //nologo "{vbs_path}"')
         elif OS == "Darwin":
             safe_message = message.replace("\\", "\\\\").replace('"', '\\"')
-            run_later(delay_seconds, f'osascript -e \'display dialog "{safe_message}" with title "Meddelande"\'')
+            run_later(delay_seconds, f'osascript -e \'display dialog "{safe_message}" with title "Message from parent"\'')
         else:
             safe_message = message.replace("\\", "\\\\").replace('"', '\\"')
-            run_later(delay_seconds, f'notify-send "Meddelande" "{safe_message}"')
+            run_later(delay_seconds, f'notify-send "Message from parent" "{safe_message}"')
         return {"ok": True, "msg": wait_text("Showing message", delay_minutes, "Message sent")}
 
     if action == "disable":
