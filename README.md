@@ -31,4 +31,4 @@ If you selected the option "Start PCCtrl server" during installation, you can pr
 3. Once you've got the ip, go onto your phone and type in **<the pc's ip>:5050** (the default port is 5050, change it if you've changed it through the python code)
 
 If you've done everything correctly, you have now access to the control panel. 
-If something does'nt work, feel free to message me on discord: **chunkberries**
+If something doesn't work, feel free to message me on discord: **chunkberries**
