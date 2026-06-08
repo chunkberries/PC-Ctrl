@@ -1,3 +1,3 @@
 @echo off
-cd /d "C:\remotethingy"
+cd /d "C:\PCCtrl"
 start "" pythonw remote_server.py
