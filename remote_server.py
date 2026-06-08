@@ -351,9 +351,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.send_json(200, result)
 
 
+class ReusableServer(http.server.ThreadingHTTPServer):
+    allow_reuse_address = True
+
 if __name__ == "__main__":
     kicked, admin, status = enforce_disable_if_needed()
-    server = http.server.ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
+    server = ReusableServer(("0.0.0.0", PORT), Handler)
+    
     print(f"\n  PC Remote Control - port {PORT} - no dependencies needed")
     print(f"  Open http://<this-pc-ip>:{PORT} on your phone")
     if status["active"]:
