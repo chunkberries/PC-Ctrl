@@ -45,5 +45,6 @@ To check the **logs** of all the actions, simple go to C:/PCCtrl, where there wi
 ### Uninstalling
 
 To uninstall PCCtrl, go to C:/PCCtrl where you will find a file named **unins000.exe**. Simply run that first, shutdown the server following the steps above, and then delete the PCCtrl folder from you C: drive.
+In future updates this process will also become quicker and easier.
 
 If something doesn't work, feel free to message me on discord: **chunkberries**
