@@ -23,7 +23,7 @@ Easy To Use PC Control, with a local server making it possible to control the pc
 
 ### Now you've set a pin! Let's move onto actually opening the control panel.
 
-If you selected the option "Start PCCtrl server" during installation, you can proceed with the steps below, if not, just log in with the user you chose during installation to start the server, note that it might take a minute for the program to start.
+If you selected the option "Start PCCtrl server" during installation, you can proceed with the steps below, if not, just log in with the user you chose during installation to start the server, note that it might take a minute or two for the program to start.
 
 1. First of all you have to get the PC's ip adress. To do that, open a **Command Prompt** and run:
 ```ipconfig```
