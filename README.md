@@ -16,7 +16,7 @@ Easy To Use PC Control, with a local server making it possible to control the pc
 <img width="423" height="439" alt="ctrltut1" src="https://github.com/user-attachments/assets/1237c78e-fdfd-438f-86e3-502aabe88562" />
 
 5. After that, click **OK** and hit **Next** then **Install**.
-6. Ater the installation you have the option to run the PCCtrl server. This just starts the control making you able to visit the control panel, note that this starts the control for the logged in user, not the user you selected. This is highly recommended.
+6. Ater the installation you have the option to run the PCCtrl server. This just starts the control making you able to visit the control panel, note that this starts the control for the logged in user, not the user you selected. This is recommended if you wanna test the control to make sure everything works.
 
 ### Now you've successfully installed the server onto the pc! This next step will guide you how to set a pin to access the control panel.
 
