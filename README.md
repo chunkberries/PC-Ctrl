@@ -2,7 +2,7 @@
 Easy To Use PC Control, with a local server making it possible to control the pc directly from your phone.
 
 ## Requirements:
-1. You will need the programming language **Python**, which you can download [here](https://www.python.org). This is required or else the program simply can't run.
+1. You will need the programming language **Python**, which you can download [here](https://www.python.org). This is required to run the program.
 
 ## Instructions:
 1. Download the [installer](https://github.com/chunkberries/PC-Ctrl/releases/download/Installer/PCCtrlSetup.exe).
