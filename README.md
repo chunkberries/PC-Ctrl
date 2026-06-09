@@ -1,6 +1,9 @@
 # PC-Ctrl
 Easy To Use PC Control, with a local server making it possible to control the pc directly from your phone.
 
+## Requirements:
+1. You will need the programming language **Python**, which you can download [here](https://www.python.org). This is required or else the program simply can't run.
+
 ## Instructions:
 1. Download the [installer](https://github.com/chunkberries/PC-Ctrl/releases/download/Installer/PCCtrlSetup.exe).
 2. When running the installer you will be prompted to select the users path. To change the user you wanna control, click browse.
