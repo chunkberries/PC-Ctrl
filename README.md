@@ -37,7 +37,7 @@ If you've done everything correctly, you have now access to the control panel.
 
 ### Shutting down the server
 1. Open task manager.
-2. Search for "python" and stop all the processes that comes up.
+2. Search for **"python"** and stop all the processes that comes up.
 
 A quicker and easier way will probably come in future updates, but I'll keep it like this for now.
 
@@ -47,7 +47,7 @@ To check the **logs** of all the actions, simple go to C:/PCCtrl, where there wi
 
 ### Uninstalling
 
-To uninstall PCCtrl, go to C:/PCCtrl where you will find a file named **unins000.exe**. Simply run that first, shutdown the server following the steps above, and then delete the PCCtrl folder from you C: drive.
+To uninstall PCCtrl, go to C:/PCCtrl where you will find a file named **unins000.exe**. Simply run that first, shutdown the server by following the steps above, and then delete the PCCtrl folder from your C: drive if it didn't get deleted automatically.
 In future updates this process will also become quicker and easier.
 
 If something doesn't work, feel free to message me on discord: **chunkberries**
