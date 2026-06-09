@@ -36,7 +36,7 @@ If you selected the option "Start PCCtrl server" during installation, you can pr
 If you've done everything correctly, you have now access to the control panel. 
 
 ### Shutting down the server
-1. Open task manager.
+1. Open **task manager**.
 2. Search for **"python"** and stop all the processes that comes up.
 
 A quicker and easier way will probably come in future updates, but I'll keep it like this for now.
