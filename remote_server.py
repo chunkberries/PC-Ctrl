@@ -245,24 +245,56 @@ def handle_action(data):
             return {"ok": False, "msg": "Message is empty"}
 
         if OS == "Windows":
-            vbs_path = os.path.join(tempfile.gettempdir(), "pc_remote_message.vbs")
-            safe_message = message.replace('"', '""')
-            safe_message = safe_message.replace("\r\n", "\n").replace("\r", "\n")
-            safe_message = safe_message.replace("\n", '" & vbCrLf & "')
-            vbs = f'MsgBox "{safe_message}", vbInformation, "Message from parent"'
-            try:
-                with open(vbs_path, "w", encoding="mbcs", errors="replace", newline="\r\n") as f:
-                    f.write(vbs)
-            except LookupError:
-                with open(vbs_path, "w", encoding="cp1252", errors="replace", newline="\r\n") as f:
-                    f.write(vbs)
-            run_later(delay_seconds, f'wscript //nologo "{vbs_path}"')
+            import base64
+
+            ps_path = os.path.join(tempfile.gettempdir(), "pc_remote_message.ps1")
+            msg_b64 = base64.b64encode(message.encode("utf-8")).decode("ascii")
+            ps = f"""$msg = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('{msg_b64}'))
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+$form = New-Object System.Windows.Forms.Form
+$form.Text = 'Meddelande'
+$form.TopMost = $true
+$form.FormBorderStyle = 'FixedDialog'
+$form.MaximizeBox = $false
+$form.MinimizeBox = $false
+$form.StartPosition = 'CenterScreen'
+$form.Width = 420
+$form.Height = 220
+$form.Padding = New-Object System.Windows.Forms.Padding(16)
+$label = New-Object System.Windows.Forms.Label
+$label.Text = $msg
+$label.AutoSize = $false
+$label.Dock = 'Fill'
+$label.TextAlign = 'MiddleCenter'
+$label.Font = New-Object System.Drawing.Font('Segoe UI', 10)
+$form.Controls.Add($label)
+$button = New-Object System.Windows.Forms.Button
+$button.Text = 'OK'
+$button.Dock = 'Bottom'
+$button.Height = 36
+$button.Add_Click({{ $form.Close() }})
+$form.Controls.Add($button)
+$form.Add_Shown({{
+    $form.Activate()
+    $form.BringToFront()
+    $form.Focus()
+    [void][System.Windows.Forms.Application]::DoEvents()
+}})
+[void]$form.ShowDialog()
+"""
+            with open(ps_path, "w", encoding="utf-8", newline="\r\n") as f:
+                f.write(ps)
+            run_later(
+                delay_seconds,
+                f'powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "{ps_path}"',
+            )
         elif OS == "Darwin":
             safe_message = message.replace("\\", "\\\\").replace('"', '\\"')
-            run_later(delay_seconds, f'osascript -e \'display dialog "{safe_message}" with title "Message from parent"\'')
+            run_later(delay_seconds, f'osascript -e \'display dialog "{safe_message}" with title "Meddelande"\'')
         else:
             safe_message = message.replace("\\", "\\\\").replace('"', '\\"')
-            run_later(delay_seconds, f'notify-send "Message from parent" "{safe_message}"')
+            run_later(delay_seconds, f'notify-send "Meddelande" "{safe_message}"')
         return {"ok": True, "msg": wait_text("Showing message", delay_minutes, "Message sent")}
 
     if action == "disable":
@@ -351,13 +383,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.send_json(200, result)
 
 
-class ReusableServer(http.server.ThreadingHTTPServer):
-    allow_reuse_address = True
-
 if __name__ == "__main__":
     kicked, admin, status = enforce_disable_if_needed()
-    server = ReusableServer(("0.0.0.0", PORT), Handler)
-    
+    server = http.server.ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
     print(f"\n  PC Remote Control - port {PORT} - no dependencies needed")
     print(f"  Open http://<this-pc-ip>:{PORT} on your phone")
     if status["active"]:
