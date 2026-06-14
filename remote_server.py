@@ -253,7 +253,7 @@ def handle_action(data):
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'Meddelande'
+$form.Text = 'Message'
 $form.TopMost = $true
 $form.FormBorderStyle = 'FixedDialog'
 $form.MaximizeBox = $false
@@ -291,10 +291,10 @@ $form.Add_Shown({{
             )
         elif OS == "Darwin":
             safe_message = message.replace("\\", "\\\\").replace('"', '\\"')
-            run_later(delay_seconds, f'osascript -e \'display dialog "{safe_message}" with title "Meddelande"\'')
+            run_later(delay_seconds, f'osascript -e \'display dialog "{safe_message}" with title "Message"\'')
         else:
             safe_message = message.replace("\\", "\\\\").replace('"', '\\"')
-            run_later(delay_seconds, f'notify-send "Meddelande" "{safe_message}"')
+            run_later(delay_seconds, f'notify-send "Message" "{safe_message}"')
         return {"ok": True, "msg": wait_text("Showing message", delay_minutes, "Message sent")}
 
     if action == "disable":
